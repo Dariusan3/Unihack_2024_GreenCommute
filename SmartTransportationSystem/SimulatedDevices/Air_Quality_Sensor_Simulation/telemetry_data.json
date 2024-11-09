@@ -1,42 +1,6 @@
 [
     {
         "sensorType": "AirQualitySensor",
-        "timestamp": "2024-11-09 11:06:24",
-        "data": {
-            "co": 5.5,
-            "no2": 13.3,
-            "pm25": 53
-        }
-    },
-    {
-        "sensorType": "AirQualitySensor",
-        "timestamp": "2024-11-09 11:06:33",
-        "data": {
-            "co": 5.5,
-            "no2": 13.3,
-            "pm25": 53
-        }
-    },
-    {
-        "sensorType": "AirQualitySensor",
-        "timestamp": "2024-11-09 11:06:42",
-        "data": {
-            "co": 5.5,
-            "no2": 13.3,
-            "pm25": 53
-        }
-    },
-    {
-        "sensorType": "AirQualitySensor",
-        "timestamp": "2024-11-09 11:06:51",
-        "data": {
-            "co": 5.5,
-            "no2": 13.3,
-            "pm25": 53
-        }
-    },
-    {
-        "sensorType": "AirQualitySensor",
         "timestamp": "2024-11-09 11:07:00",
         "data": {
             "co": 5.5,
@@ -132,6 +96,51 @@
             "co": 5.5,
             "no2": 13.3,
             "pm25": 53
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:41:06",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:41:15",
+        "data": {
+            "co": 4.9,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:41:25",
+        "data": {
+            "co": 4.9,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:41:34",
+        "data": {
+            "co": 4.9,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:41:43",
+        "data": {
+            "co": 4.9,
+            "no2": 13.8,
+            "pm25": 61
         }
     }
 ]
