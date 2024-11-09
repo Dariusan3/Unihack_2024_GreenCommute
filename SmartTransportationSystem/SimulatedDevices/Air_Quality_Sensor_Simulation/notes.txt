@@ -1,0 +1,1 @@
+Telemetry messages sent (Sum), smarttrafficmanagement
