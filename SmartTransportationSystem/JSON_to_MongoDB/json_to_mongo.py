@@ -7,7 +7,7 @@ try:
         # config = json.load(file)
 
     # Extract connection details
-    connection_string = "mongodb+srv://dariusosadici:Parola0509@monitoring-cluster.qm4du.mongodb.net/?retryWrites=true&w=majority&appName=Monitoring-Cluster"
+    connection_string = "mongodb+srv://dariusosadici:Parola0509@monitoring-cluster.qm4du.mongodb.net/?retryWrites=true&w=majority&appName=Monitoring-Cluster&tls=true&tlsAllowInvalidCertificates=true"
     database_name = "GreenCommuteDB"
     collection_name = "SensorReadings"
 
