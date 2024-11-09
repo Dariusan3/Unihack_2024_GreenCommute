@@ -1,6 +1,8 @@
 ﻿using GreenCommuteAPI.Data;
 using GreenCommute.Models;
 using GreenCommute.Services;
+using GreenCommute;
+using GreenCommuteAPI.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,11 @@ builder.Services.Configure<DatabaseSettings>(
 builder.Services.AddSingleton<SensorReadings>();
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHostedService<BackgroundIoTService>();
+
+// builder.WebHost.UseUrls("http://localhost:44428");
+
 
 builder.Services.AddCors(options =>
 {
