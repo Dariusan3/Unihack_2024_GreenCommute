@@ -1,6 +1,8 @@
 import requests
 import time
 import json
+import os
+import threading
 from azure.iot.device import IoTHubDeviceClient, Message
 
 # Load connection string for Azure IoT Hub
@@ -14,38 +16,31 @@ CONNECTION_STRING = load_connection_string()
 client = IoTHubDeviceClient.create_from_connection_string(CONNECTION_STRING)
 
 # WAQI API configuration for Timisoara
-STATION_ID = "timisoara"  # Using 'timisoara' station for this example
-API_URL = f"http://api.waqi.info/feed/{STATION_ID}/?token=demo"  # demo token for free access
+STATION_ID = "timisoara"
+API_URL = f"http://api.waqi.info/feed/{STATION_ID}/?token=demo"  # demo token
+
+# Local file to store telemetry data
+DATA_FILE = "air_quality_sensor_data.json"
+
+# Lock to ensure thread-safe access to the local JSON file
+data_lock = threading.Lock()
 
 # Function to get air quality data from WAQI API
 def get_air_quality_data():
-    # Make the GET request to the WAQI API
     response = requests.get(API_URL)
-    
     if response.status_code == 200:
         data = response.json()
-        
-        # Check if the response status is 'ok'
         if data['status'] == 'ok' and 'data' in data:
-            # Extract air quality components (PM2.5, CO, NO2, etc.)
             components = data['data']['iaqi']
-            
-            # Extract the required data (CO, NO2, PM2.5)
-            co_level = components.get("co", {}).get("v", 0)  # Default to 0 if not available
-            no2_level = components.get("no2", {}).get("v", 0)  # Default to 0 if not available
-            pm25 = components.get("pm25", {}).get("v", 0)  # Default to 0 if not available
-            
-            # Format the telemetry data as per your specified format
             telemetry_data = {
                 "sensorType": "AirQualitySensor",
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()),  # Add timestamp
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()),
                 "data": {
-                    "co": co_level,
-                    "no2": no2_level,
-                    "pm25": pm25
+                    "co": components.get("co", {}).get("v", 0),
+                    "no2": components.get("no2", {}).get("v", 0),
+                    "pm25": components.get("pm25", {}).get("v", 0)
                 }
             }
-            
             return telemetry_data
         else:
             print("Error: Invalid data or station is down.")
@@ -54,27 +49,57 @@ def get_air_quality_data():
         print(f"Failed to connect to WAQI API. HTTP Status Code: {response.status_code}")
         return None
 
+# Function to save telemetry data locally to a JSON file
+def save_telemetry_data_locally(telemetry_data):
+    with data_lock:  # Ensure that only one thread can access the file at a time
+        if not os.path.exists(DATA_FILE):
+            with open(DATA_FILE, 'w') as file:
+                json.dump([], file)  # Initialize with an empty list
+
+        with open(DATA_FILE, 'r+') as file:
+            data = json.load(file)
+            data.append(telemetry_data)
+            file.seek(0)
+            json.dump(data, file, indent=4)
+    print(f"Saved data locally: {json.dumps(telemetry_data)}")
+
+# Function to fetch and save data continuously
+def data_fetcher():
+    while True:
+        telemetry_data = get_air_quality_data()
+        if telemetry_data:
+            save_telemetry_data_locally(telemetry_data)
+        time.sleep(8)  # Fetch every 8 seconds
+
 # Function to send telemetry data to Azure IoT Hub
-def send_telemetry_to_iothub():
-    telemetry_data = get_air_quality_data()
-    
-    if telemetry_data:
-        # Convert telemetry data to JSON format
-        message = Message(json.dumps(telemetry_data))
-        message.content_encoding = "utf-8"
-        message.content_type = "application/json"
-        
-        # Send the message to Azure IoT Hub
-        client.send_message(message)
-        print(f"Sent data: {json.dumps(telemetry_data)}")
-    else:
-        print("No data to send.")
+def send_telemetry_to_iothub(telemetry_data):
+    message = Message(json.dumps(telemetry_data))
+    message.content_encoding = "utf-8"
+    message.content_type = "application/json"
+    client.send_message(message)
+    print(f"Sent data to IoT Hub: {json.dumps(telemetry_data)}")
 
-# Continuously send telemetry data (you can adjust the frequency)
-while True:
-    send_telemetry_to_iothub()
-    time.sleep(8)  
+# Function to send data from local JSON to Azure IoT Hub
+def data_sender():
+    while True:
+        with data_lock:  # Ensure thread-safe access to the file
+            if os.path.exists(DATA_FILE):
+                with open(DATA_FILE, 'r+') as file:
+                    data = json.load(file)
+                    if data:
+                        telemetry_data = data.pop(0)  # Remove the first entry
+                        file.seek(0)
+                        json.dump(data, file, indent=4)
+                        file.truncate()  # Remove leftover data
+                        send_telemetry_to_iothub(telemetry_data)
+        time.sleep(10)  # Send every 10 seconds
 
+# Starting the threads
+fetch_thread = threading.Thread(target=data_fetcher)
+send_thread = threading.Thread(target=data_sender)
 
+fetch_thread.start()
+send_thread.start()
 
-# 
+fetch_thread.join()
+send_thread.join()

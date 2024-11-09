@@ -70,5 +70,149 @@
             "no2": 19.2,
             "pm25": 42
         }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:25:29",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:25:40",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:25:50",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:25:59",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:26:09",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:26:19",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:26:29",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:26:39",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:26:49",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:26:58",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:27:07",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:27:16",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:27:27",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:27:37",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:27:46",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
+    },
+    {
+        "sensorType": "AirQualitySensor",
+        "timestamp": "2024-11-09 12:27:56",
+        "data": {
+            "co": 4.6,
+            "no2": 13.8,
+            "pm25": 61
+        }
     }
 ]
