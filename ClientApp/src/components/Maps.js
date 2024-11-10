@@ -11,7 +11,6 @@ import {
 } from "@chakra-ui/react";
 import { FaLocationArrow, FaTimes } from "react-icons/fa";
 import { ChakraProvider, theme } from "@chakra-ui/react";
-
 import {
   useJsApiLoader,
   GoogleMap,
@@ -24,13 +23,10 @@ import { useRef, useState } from "react";
 const center = { lat: 48.8584, lng: 2.2945 };
 
 export default function Maps() {
-  if (!process.env.REACT_GOOGLE_MAPS_API_KEY) {
-    console.error("Google Maps API Key is missing");
-  } else {
-    console.log("Google Maps API Key:", process.env.REACT_GOOGLE_MAPS_API_KEY);
-  }
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyCFnTl7W2F8ylX1sifOisPoUT1GrCoRYnY",
+    googleMapsApiKey:
+      process.env.REACT_APP_GOOGLE_MAPS_API_KEY ||
+      "AIzaSyCFnTl7W2F8ylX1sifOisPoUT1GrCoRYnY",
     libraries: ["places"],
   });
 
@@ -39,9 +35,7 @@ export default function Maps() {
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
 
-  /** @type React.MutableRefObject<HTMLInputElement> */
   const originRef = useRef();
-  /** @type React.MutableRefObject<HTMLInputElement> */
   const destiantionRef = useRef();
 
   if (!isLoaded) {
@@ -50,19 +44,28 @@ export default function Maps() {
 
   async function calculateRoute() {
     if (originRef.current.value === "" || destiantionRef.current.value === "") {
+      alert("Please enter both origin and destination.");
       return;
     }
-    // eslint-disable-next-line no-undef
-    const directionsService = new google.maps.DirectionsService();
-    const results = await directionsService.route({
-      origin: originRef.current.value,
-      destination: destiantionRef.current.value,
-      // eslint-disable-next-line no-undef
-      travelMode: google.maps.TravelMode.DRIVING,
-    });
-    setDirectionsResponse(results);
-    setDistance(results.routes[0].legs[0].distance.text);
-    setDuration(results.routes[0].legs[0].duration.text);
+
+    try {
+      // Check if `google` is defined before using it
+      if (window.google) {
+        const directionsService = new window.google.maps.DirectionsService();
+        const results = await directionsService.route({
+          origin: originRef.current.value,
+          destination: destiantionRef.current.value,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        });
+        setDirectionsResponse(results);
+        setDistance(results.routes[0].legs[0].distance.text);
+        setDuration(results.routes[0].legs[0].duration.text);
+      } else {
+        console.error("Google Maps JavaScript API is not loaded.");
+      }
+    } catch (error) {
+      console.error("Error calculating route:", error);
+    }
   }
 
   function clearRoute() {
@@ -83,7 +86,6 @@ export default function Maps() {
         w="100vw"
       >
         <Box position="absolute" left={0} top={0} h="100%" w="100%">
-          {/* Google Map Box */}
           <GoogleMap
             center={center}
             zoom={15}
@@ -96,13 +98,12 @@ export default function Maps() {
             }}
             onLoad={(map) => setMap(map)}
           >
-            <Marker position={center} />
             {directionsResponse && (
               <DirectionsRenderer
                 directions={directionsResponse}
                 options={{
                   polylineOptions: {
-                    strokeColor: "#ff6347", // Example: Change the polyline color to tomato
+                    strokeColor: "#ff6347",
                     strokeWeight: 5,
                   },
                 }}
