@@ -1,15 +1,25 @@
-from pymongo import MongoClient, errors
+import sys
 import json
+from pymongo import MongoClient, errors
 
 try:
-    # Step 1: Load MongoDB connection details from 'mongo_connection.json'
-    # with open('mongo_connection.json') as file:
-        # config = json.load(file)
+    # Step 1: Get collection_name from the first command line argument
+    if len(sys.argv) < 2:
+        raise ValueError("Collection name is missing. Please provide it as the first argument.")
+    
+    collection_name = sys.argv[1]
 
-    # Extract connection details
+    # Set the path to the JSON file based on the collection name
+    if collection_name == "SensorReadings":
+        json_file_path = "../SimulatedDevices/Air_Quality_Sensor_Simulation/air_quality_sensor_data.json"
+    elif collection_name == "OptimalRouteResults":
+        json_file_path = "optimal_route_results.json"
+    else:
+        raise ValueError("Unsupported collection name. Please use 'SensorReadings' or 'OptimalRouteResults'.")
+
+    # MongoDB connection details
     connection_string = "mongodb+srv://dariusosadici:Parola0509@monitoring-cluster.qm4du.mongodb.net/?retryWrites=true&w=majority&appName=Monitoring-Cluster&tls=true&tlsAllowInvalidCertificates=true"
     database_name = "GreenCommuteDB"
-    collection_name = "SensorReadings"
 
     # Verify if essential connection details are present
     if not all([connection_string, database_name, collection_name]):
@@ -31,11 +41,11 @@ try:
 
         # Step 3: Load data from the JSON file
         try:
-            with open('../SimulatedDevices/Air_Quality_Sensor_Simulation/air_quality_sensor_data.json') as data_file:
+            with open(json_file_path) as data_file:
                 data = json.load(data_file)
             print("Data loaded from JSON file successfully.")
         except FileNotFoundError:
-            print("Data JSON file not found. Please check the file path.")
+            print(f"Data JSON file not found at {json_file_path}. Please check the file path.")
             data = None
         except json.JSONDecodeError:
             print("Error decoding JSON. Please ensure the JSON file is valid.")
