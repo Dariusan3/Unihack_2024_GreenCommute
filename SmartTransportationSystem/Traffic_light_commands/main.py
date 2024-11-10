@@ -1,50 +1,48 @@
 import streamlit as st
 import numpy as np
-import time
 from traffic_env import TrafficEnv
-from q_learning_agent import QLearningAgent
+import json
 
-# Load trained Q-table from file
-q_table = np.load("q_table.npy")
+# Streamlit UI
+st.title("Traffic Light Control Simulation")
 
-# Define the optimal route and weight for simulation
-optimal_route = ["Intersection A", "Intersection D"]
-total_weight = 8.0
+# Input: JSON format of the optimal route and total weight
+optimal_route_input = st.text_area("Enter the Optimal Route JSON (e.g., {\"optimal_route\": [\"Intersection A\", \"Intersection D\"], \"total_weight\": 8.0})", 
+                                   "{\"optimal_route\": [\"Intersection A\", \"Intersection D\"], \"total_weight\": 8.0}")
 
-# Initialize the traffic environment and Q-learning agent
-env = TrafficEnv(num_intersections=4, optimal_route=optimal_route, total_weight=total_weight)
-agent = QLearningAgent(num_states=env.observation_space.n, num_actions=env.action_space.n)
+# Parse the input to get the optimal route and total weight
+try:
+    optimal_route_data = json.loads(optimal_route_input)
+    optimal_route = optimal_route_data["optimal_route"]
+    total_weight = optimal_route_data["total_weight"]
+except json.JSONDecodeError:
+    st.error("Invalid JSON format. Please correct the format.")
+    optimal_route = []
+    total_weight = None
 
-# Streamlit Interface: Display the title of the app
-st.title("Traffic Light Control System")
+# Input: Vehicle counts at each intersection (ensure the number of counts matches the number of intersections)
+vehicle_counts_input = st.text_input("Enter vehicle counts at each intersection (comma separated, e.g., 10, 5, 3, 8):", "10, 5, 3, 8")
+vehicle_counts = np.array([int(x.strip()) for x in vehicle_counts_input.split(',')])
 
-# Display function for current vehicle counts and light states
-def display_traffic_info():
-    st.write("### Vehicle Counts at Each Intersection")
-    st.write(env.vehicle_counts)
+# Ensure vehicle counts match the number of intersections
+if len(vehicle_counts) != len(optimal_route):
+    st.error(f"Number of vehicle counts does not match the number of intersections in the optimal route. Expected {len(optimal_route)} counts.")
+else:
+    # Number of intersections
+    num_intersections = len(vehicle_counts)
 
-    st.write("### Current Traffic Light States")
-    st.write(env.light_states)
+    # Initialize the TrafficEnv with the given parameters
+    env = TrafficEnv(num_intersections=num_intersections, optimal_route=optimal_route, vehicle_counts=vehicle_counts)
 
-# Main loop for real-time control of the traffic lights
-st.write("### Real-time Traffic Light Control")
+    # Update the traffic light states based on the optimal route and vehicle counts
+    env.update_traffic_lights()
 
-# Simulate and update the traffic lights
-for step in range(5):  # Simulate for 5 steps
-    state = env.reset()
-    state = np.argmax(state)  # Convert the observation to a state index
-    
-    # Agent chooses the best action based on the trained Q-table
-    action = np.argmax(q_table[state])
-    
-    # Apply the action and get the next state and reward
-    next_state, reward, done, _ = env.step(action)
-    
-    # Display the current traffic info (vehicle counts and light states)
-    display_traffic_info()
-    
-    # Wait for 1 second before simulating the next step
-    time.sleep(1)
+    # Show the updated traffic light states
+    st.write("Updated Traffic Light States:")
+    for i, intersection in enumerate(env.get_traffic_light_status()):
+        st.write(f"Intersection {chr(ord('A') + i)}: {intersection}")
 
-    if done:
-        break
+    # Show the vehicle counts at each intersection
+    st.write("Vehicle Counts at Each Intersection:")
+    for i, count in enumerate(vehicle_counts):
+        st.write(f"Intersection {chr(ord('A') + i)}: {count} vehicles")

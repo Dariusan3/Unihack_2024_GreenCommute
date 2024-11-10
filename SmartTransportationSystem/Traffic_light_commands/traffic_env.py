@@ -1,49 +1,39 @@
 import numpy as np
-import gym
-from gym import spaces
 
-class TrafficEnv(gym.Env):
-    def __init__(self, num_intersections, optimal_route, total_weight):
-        super(TrafficEnv, self).__init__()
+class TrafficEnv:
+    def __init__(self, num_intersections, optimal_route, vehicle_counts):
         self.num_intersections = num_intersections
-        self.optimal_route = optimal_route
-        self.total_weight = total_weight
-        self.vehicle_counts = np.random.randint(0, 10, size=num_intersections)
-        self.light_states = ['Red'] * num_intersections
+        self.optimal_route = optimal_route  # List of intersections
+        self.vehicle_counts = vehicle_counts  # Vehicle counts at each intersection
+        self.light_states = ['Red'] * num_intersections  # Initial light states: All red
         
-        # Action space: Each intersection has 3 possible states (Red, Green, Yellow)
-        self.action_space = spaces.MultiDiscrete([3] * num_intersections)  # 3 states per intersection
-
-        # Observation space: Vehicle count at each intersection (Discrete)
-        self.observation_space = spaces.MultiDiscrete([10] * num_intersections)  # Vehicle counts range from 0 to 9
+    def update_traffic_lights(self):
+        """
+        Update the traffic light states based on the optimal route and vehicle counts.
+        The intersection with the most vehicles in the optimal route gets the Green light.
+        """
+        # Find the intersection with the highest vehicle count on the optimal route
+        max_vehicle_count = -1
+        intersection_to_set_green = None
         
-    def reset(self):
-        self.vehicle_counts = np.random.randint(0, 10, size=self.num_intersections)
-        self.light_states = ['Red'] * self.num_intersections
-        return self.vehicle_counts
-    
-    def step(self, action):
-        # Update the light states and vehicle counts based on the action
-        action_str = self.decode_action(action)
-        for i, state in enumerate(action_str):
-            self.light_states[i] = state
+        # Iterate over the optimal route to find the intersection with the highest vehicle count
+        for intersection in self.optimal_route:
+            # Get the index of the intersection in the traffic lights list
+            index = ord(intersection.split(' ')[-1]) - ord('A')  # A -> 0, B -> 1, etc.
+            if self.vehicle_counts[index] > max_vehicle_count:
+                max_vehicle_count = self.vehicle_counts[index]
+                intersection_to_set_green = intersection
         
-        # Calculate the reward (based on congestion and optimal route)
-        reward = self.calculate_reward()
-        
-        return self.vehicle_counts, reward, False, {}
-    
-    def decode_action(self, action):
-        action_str = []
+        # Set the green light for the intersection with the most vehicles
         for i in range(self.num_intersections):
-            action_str.append(['Red', 'Green', 'Yellow'][action[i]])
-        return action_str
-    
-    def calculate_reward(self):
-        # Reward for prioritizing the optimal route and reducing congestion
-        reward = 0
-        for i, intersection in enumerate(self.optimal_route):
-            if self.light_states[i] == 'Green':
-                reward += self.total_weight
-        reward -= np.sum(self.vehicle_counts)  # Penalize for congestion
-        return reward
+            intersection_name = f"Intersection {chr(ord('A') + i)}"
+            if intersection_name == intersection_to_set_green:
+                self.light_states[i] = 'Green'
+            else:
+                self.light_states[i] = 'Red'  # Set others to Red (or Yellow if preferred)
+        
+    def get_traffic_light_status(self):
+        return self.light_states
+
+    def get_vehicle_counts(self):
+        return self.vehicle_counts
