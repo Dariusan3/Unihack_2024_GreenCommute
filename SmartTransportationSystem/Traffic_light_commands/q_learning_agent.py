@@ -8,7 +8,7 @@ class QLearningAgent:
         self.gamma = gamma    # Discount factor
         self.epsilon = epsilon  # Exploration rate
         
-        # Initialize Q-table: state-action value table
+        # Initialize Q-table (state-action value table)
         self.q_table = np.zeros((num_states, num_actions))
         
     def choose_action(self, state):

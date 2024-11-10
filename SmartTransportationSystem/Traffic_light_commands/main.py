@@ -1,27 +1,50 @@
+import streamlit as st
 import numpy as np
+import time
 from traffic_env import TrafficEnv
 from q_learning_agent import QLearningAgent
 
-# Load the trained Q-table
+# Load trained Q-table from file
 q_table = np.load("q_table.npy")
 
-# Initialize environment
-env = TrafficEnv(num_intersections=4)
+# Define the optimal route and weight for simulation
+optimal_route = ["Intersection A", "Intersection D"]
+total_weight = 8.0
 
-# Main loop for real-time control
-while True:
-    state = env.reset()  # Get current state (real-time vehicle counts and light states)
-    state = np.argmax(state)  # Convert observation to state index
+# Initialize the traffic environment and Q-learning agent
+env = TrafficEnv(num_intersections=4, optimal_route=optimal_route, total_weight=total_weight)
+agent = QLearningAgent(num_states=env.observation_space.n, num_actions=env.action_space.n)
+
+# Streamlit Interface: Display the title of the app
+st.title("Traffic Light Control System")
+
+# Display function for current vehicle counts and light states
+def display_traffic_info():
+    st.write("### Vehicle Counts at Each Intersection")
+    st.write(env.vehicle_counts)
+
+    st.write("### Current Traffic Light States")
+    st.write(env.light_states)
+
+# Main loop for real-time control of the traffic lights
+st.write("### Real-time Traffic Light Control")
+
+# Simulate and update the traffic lights
+for step in range(5):  # Simulate for 5 steps
+    state = env.reset()
+    state = np.argmax(state)  # Convert the observation to a state index
     
-    # Use Q-learning agent's policy to decide the next action
-    action = np.argmax(q_table[state])  # Select best action based on learned policy
+    # Agent chooses the best action based on the trained Q-table
+    action = np.argmax(q_table[state])
     
-    # Update the traffic light states in the environment
+    # Apply the action and get the next state and reward
     next_state, reward, done, _ = env.step(action)
     
-    # Optionally, log or display results (e.g., vehicle counts, rewards, etc.)
-    print(f"Vehicle counts: {env.vehicle_counts}, Traffic light states: {env.light_states}")
+    # Display the current traffic info (vehicle counts and light states)
+    display_traffic_info()
+    
+    # Wait for 1 second before simulating the next step
+    time.sleep(1)
 
-    # Exit condition (example: break after a set number of iterations or based on real-time data)
     if done:
         break
